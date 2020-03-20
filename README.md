@@ -21,3 +21,5 @@ Attributes data (climatologies):
 - land cover
 - soil
 - geology
+
+code creating the data: https://github.com/naddor/camels
