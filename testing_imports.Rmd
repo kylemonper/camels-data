@@ -1,0 +1,277 @@
+---
+title: "CAMELS import exploration"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## CAMELS data
+
+You get download a zip file with all the data. Once unzip on your local file system here is the file structure you get (only directories / folders)
+
+```{bash}
+├── basin_set_full_res
+├── basin_timeseries_v1p2_metForcing_obsFlow
+│   ├── basin_dataset_public
+│   │   └── basin_mean_forcing
+│   │       ├── daymet
+│   │       │   ├── 01
+│   │       │   ├── 02
+│   │       │   ├── 03
+│   │       │   ├── 04
+│   │       │   ├── 05
+│   │       │   ├── 06
+│   │       │   ├── 07
+│   │       │   ├── 08
+│   │       │   ├── 09
+│   │       │   ├── 10
+│   │       │   ├── 11
+│   │       │   ├── 12
+│   │       │   ├── 13
+│   │       │   ├── 14
+│   │       │   ├── 15
+│   │       │   ├── 16
+│   │       │   ├── 17
+│   │       │   └── 18
+│   │       ├── maurer
+│   │       │   ├── 01
+│   │       │   ├── 02
+│   │       │   ├── 03
+│   │       │   ├── 04
+│   │       │   ├── 05
+│   │       │   ├── 06
+│   │       │   ├── 07
+│   │       │   ├── 08
+│   │       │   ├── 09
+│   │       │   ├── 10
+│   │       │   ├── 11
+│   │       │   ├── 12
+│   │       │   ├── 13
+│   │       │   ├── 14
+│   │       │   ├── 15
+│   │       │   ├── 16
+│   │       │   ├── 17
+│   │       │   └── 18
+│   │       ├── nldas
+│   │       │   ├── 01
+│   │       │   ├── 02
+│   │       │   ├── 03
+│   │       │   ├── 04
+│   │       │   ├── 05
+│   │       │   ├── 06
+│   │       │   ├── 07
+│   │       │   ├── 08
+│   │       │   ├── 09
+│   │       │   ├── 10
+│   │       │   ├── 11
+│   │       │   ├── 12
+│   │       │   ├── 13
+│   │       │   ├── 14
+│   │       │   ├── 15
+│   │       │   ├── 16
+│   │       │   ├── 17
+│   │       │   └── 18
+│   │       └── v1p15
+│   │           ├── daymet
+│   │           │   ├── 01
+│   │           │   ├── 02
+│   │           │   ├── 03
+│   │           │   ├── 04
+│   │           │   ├── 05
+│   │           │   ├── 06
+│   │           │   ├── 07
+│   │           │   ├── 08
+│   │           │   ├── 09
+│   │           │   ├── 10
+│   │           │   ├── 11
+│   │           │   ├── 12
+│   │           │   ├── 13
+│   │           │   ├── 14
+│   │           │   ├── 15
+│   │           │   ├── 16
+│   │           │   ├── 17
+│   │           │   └── 18
+│   │           └── nldas
+│   │               ├── 01
+│   │               ├── 02
+│   │               ├── 03
+│   │               ├── 04
+│   │               ├── 05
+│   │               ├── 06
+│   │               ├── 07
+│   │               ├── 08
+│   │               ├── 09
+│   │               ├── 10
+│   │               ├── 11
+│   │               ├── 12
+│   │               ├── 13
+│   │               ├── 14
+│   │               ├── 15
+│   │               ├── 16
+│   │               ├── 17
+│   │               └── 18
+│   └── basin_dataset_public_v1p2
+│       ├── basin_mean_forcing
+│       │   ├── daymet
+│       │   │   ├── 01
+│       │   │   ├── 02
+│       │   │   ├── 03
+│       │   │   ├── 04
+│       │   │   ├── 05
+│       │   │   ├── 06
+│       │   │   ├── 07
+│       │   │   ├── 08
+│       │   │   ├── 09
+│       │   │   ├── 10
+│       │   │   ├── 11
+│       │   │   ├── 12
+│       │   │   ├── 13
+│       │   │   ├── 14
+│       │   │   ├── 15
+│       │   │   ├── 16
+│       │   │   ├── 17
+│       │   │   └── 18
+│       │   ├── maurer
+│       │   │   ├── 01
+│       │   │   ├── 02
+│       │   │   ├── 03
+│       │   │   ├── 04
+│       │   │   ├── 05
+│       │   │   ├── 06
+│       │   │   ├── 07
+│       │   │   ├── 08
+│       │   │   ├── 09
+│       │   │   ├── 10
+│       │   │   ├── 11
+│       │   │   ├── 12
+│       │   │   ├── 13
+│       │   │   ├── 14
+│       │   │   ├── 15
+│       │   │   ├── 16
+│       │   │   ├── 17
+│       │   │   └── 18
+│       │   └── nldas
+│       │       ├── 01
+│       │       ├── 02
+│       │       ├── 03
+│       │       ├── 04
+│       │       ├── 05
+│       │       ├── 06
+│       │       ├── 07
+│       │       ├── 08
+│       │       ├── 09
+│       │       ├── 10
+│       │       ├── 11
+│       │       ├── 12
+│       │       ├── 13
+│       │       ├── 14
+│       │       ├── 15
+│       │       ├── 16
+│       │       ├── 17
+│       │       └── 18
+│       ├── basin_metadata
+│       ├── elev_bands_forcing
+│       │   └── daymet
+│       │       ├── 01
+│       │       ├── 02
+│       │       ├── 03
+│       │       ├── 04
+│       │       ├── 05
+│       │       ├── 06
+│       │       ├── 07
+│       │       ├── 08
+│       │       ├── 09
+│       │       ├── 10
+│       │       ├── 11
+│       │       ├── 12
+│       │       ├── 13
+│       │       ├── 14
+│       │       ├── 15
+│       │       ├── 16
+│       │       ├── 17
+│       │       └── 18
+│       ├── hru_forcing
+│       │   └── daymet
+│       │       ├── 01
+│       │       ├── 02
+│       │       ├── 03
+│       │       ├── 04
+│       │       ├── 05
+│       │       ├── 06
+│       │       ├── 07
+│       │       ├── 08
+│       │       ├── 09
+│       │       ├── 10
+│       │       ├── 11
+│       │       ├── 12
+│       │       ├── 13
+│       │       ├── 14
+│       │       ├── 15
+│       │       ├── 16
+│       │       ├── 17
+│       │       └── 18
+│       ├── shapefiles
+│       │   ├── Region_01_contours_simplify_100
+│       │   ├── Region_01_nhru_simplify_100
+│       │   └── merge
+│       └── usgs_streamflow
+│           ├── 01
+│           ├── 02
+│           ├── 03
+│           ├── 04
+│           ├── 05
+│           ├── 06
+│           ├── 07
+│           ├── 08
+│           ├── 09
+│           ├── 10
+│           ├── 11
+│           ├── 12
+│           ├── 13
+│           ├── 14
+│           ├── 15
+│           ├── 16
+│           ├── 17
+│           └── 18
+└── camels_attributes_v2.0
+```
+
+### Basin mean forcing -- Daymet
+
+the files have a header of 3 lines and are not recognized as tab delimited by `readr`, so using white spaces for now. Within the daymet directory `basin_timeseries_v1p2_metForcing_obsFlow/basin_dataset_public_v1p2/basin_mean_forcing/daymet`, files are organized according to USGS Hydrological Units classification (HUC) with HUC2 as subdirectories. The filenaming convention uses the HUC8 gauge ID +`_lump_cida_forcing_leap.txt`
+
+```{r import one file}
+library(readr)
+library(stringr)
+
+# Constant
+main_dir <- "~/Data/CAMELS"
+ts_dir <- "basin_timeseries_v1p2_metForcing_obsFlow/basin_dataset_public_v1p2"
+daymet_dir <- "basin_mean_forcing/daymet"
+
+# To become variables
+huc8 <- "01013500"
+huc2 <- str_extract(huc8, "^.{2}")
+
+
+# read the file in
+test_file <- read_table2(
+  file.path(main_dir, ts_dir, daymet_dir, huc2, paste0(huc8,"_lump_cida_forcing_leap.txt")), 
+  skip = 3)
+    
+View(test_file)
+```
+Note: the last year of information is 2014.
+
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
