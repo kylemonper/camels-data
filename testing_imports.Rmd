@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 You get download a zip file with all the data. Once unzip on your local file system here is the file structure you get (only directories / folders)
 
-```{bash}
+```{bash file structure, eval=FALSE}
 ├── basin_set_full_res
 ├── basin_timeseries_v1p2_metForcing_obsFlow
 │   ├── basin_dataset_public
@@ -240,18 +240,19 @@ You get download a zip file with all the data. Once unzip on your local file sys
 
 ### Basin mean forcing -- Daymet
 
-the files have a header of 3 lines and are not recognized as tab delimited by `readr`, so using white spaces for now. Within the daymet directory `basin_timeseries_v1p2_metForcing_obsFlow/basin_dataset_public_v1p2/basin_mean_forcing/daymet`, files are organized according to USGS Hydrological Units classification (HUC) with HUC2 as subdirectories. The filenaming convention uses the HUC8 gauge ID +`_lump_cida_forcing_leap.txt`
+the files have a header of 3 lines and are not recognized as tab delimited by `readr`, so using white spaces for now. Within the daymet directory `basin_timeseries_v1p2_metForcing_obsFlow/basin_dataset_public_v1p2/basin_mean_forcing/daymet`, files are organized according to USGS Hydrological Units classification ([HUC](https://water.usgs.gov/GIS/huc.html)) with HUC2 as subdirectories. The filenaming convention uses the HUC8 gauge ID +`_lump_cida_forcing_leap.txt`
 
 ```{r import one file}
 library(readr)
 library(stringr)
+library(fs)
 
 # Constant
 main_dir <- "~/Data/CAMELS"
 ts_dir <- "basin_timeseries_v1p2_metForcing_obsFlow/basin_dataset_public_v1p2"
 daymet_dir <- "basin_mean_forcing/daymet"
 
-# To become variables
+# To become a variable
 huc8 <- "01013500"
 huc2 <- str_extract(huc8, "^.{2}")
 
@@ -260,18 +261,34 @@ huc2 <- str_extract(huc8, "^.{2}")
 test_file <- read_table2(
   file.path(main_dir, ts_dir, daymet_dir, huc2, paste0(huc8,"_lump_cida_forcing_leap.txt")), 
   skip = 3)
-    
-View(test_file)
 ```
 Note: the last year of information is 2014.
 
+### Get the attribute
 
-## Including Plots
+Since we need to get the gauge id from a bunch of text files, grep since to be the fastes way to achieve this. Need to check how it will work on Windows machines.
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r}
+text_blurb <- system2("grep", c(huc8, '~/Data/CAMELS/camels_attributes_v2.0/*'), stdout = TRUE)
+as.data.frame(text_blurb)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+Get all the CAMELS attribute files
+
+```{r}
+att_files <- list.files(file.path(main_dir,"camels_attributes_v2.0"),
+                        pattern = "^camels_[^a]", # remove the xls too; will be better with the extension instead
+                        full.names = TRUE)
+```
+
+Since each table is structured differently, we are going to store them in a named list
+
+
+
+
+```{r}
+att_list <- map(local_datasets, read_d1_files) %>% 
+  set_names(map(., ~.x$summary_metadata$value[.x$summary_metadata$name == "File_Name"]))
+```
+
