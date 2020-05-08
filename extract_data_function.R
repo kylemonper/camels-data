@@ -5,7 +5,7 @@ library(fs)
 library(dplyr)
 
 #### next step: 
-#~~ add warnings/block errors from stopping function if a huc does not exist
+#~~ add specific warning message for if the file path is wrong
 
 #' extract_huc_data()
 #' 
