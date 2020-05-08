@@ -11,8 +11,9 @@ library(dplyr)
 #' 
 #' This function takes a list of watershed Huc 8s and extracts daily mean forcing dayment data as well as relevant climate, geology, hyrdology, area, soil, topography and vegetation data
 #'
-#' @param daymet_dir directory path to daymet data should look something like: "~/basin_dataset_public_v1p2/basin_mean_forcing/daymet" within this folder there should more directories representing different huc2 watersheds
-#' @param attr_dir directory path for attributes date (e.g: "~/camels_attributes_v2.0")
+#' @param daymet_dir directory path to daymet data should look something like: "~/basin_dataset_public_v1p2/basin_mean_forcing/daymet" this directory pathway MUST end with the daymet/ folder 
+#' -- within this folder there should more directories (labeled '01', '02', '03' etc) representing different huc2 watersheds
+#' @param attr_dir directory path for attributes data (e.g: "~/camels_attributes_v2.0")
 #' @param huc8_names vector of huc8 watershed IDs
 #'
 #' @return named list for each huc8 with 8 nested named lists, one for each attribut of interest
@@ -56,6 +57,11 @@ library(dplyr)
 #'  1 08269000 13     RIO PUEBLO DE TAOS NEAR TAOS, NM
 
 extract_huc_data <- function(daymet_dir, attr_dir, huc8_names) {
+  ### check that filepaths exist
+  if(!dir_exists(daymet_dir)) stop("daymet directory does not exist, please check file path")
+  if(str_sub(daymet_dir, start = -6) != "daymet") stop("daymet directory is incorrect, please check file path")
+  if(!dir_exists(attr_dir)) stop("attribute directory does not exist, please check file path")
+
   
   ## create empty huc list
   huc_list <- list()
@@ -79,8 +85,9 @@ extract_huc_data <- function(daymet_dir, attr_dir, huc8_names) {
                                                  recursive = T)) %>% 
       filter(str_detect(files, huc8_names[i]))
     
+    # if this dataframe is empty, then that huc does not exist in the daymet dataset ==> skip to next loop
     if(nrow(daymet_file) == 0) {
-      warning(sprintf("ID: '%s' not found \n check that this ID is accurate and present within the CAMELS dataset", huc8_names[i])) 
+      warning(sprintf("ID: '%s' not found \n check that this ID is accurate and present within the CAMELS dataset \n if all IDs are correct, check that daymet directory is correct", huc8_names[i])) 
       huc_list[[i]] <- NULL
       next
     }
