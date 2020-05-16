@@ -100,8 +100,7 @@ extract_huc_data <- function(daymet_dir, attr_dir, huc8_names) {
       col_types = cols())
     
     # add this as first item within this huc's list
-    j <- 1
-    attr_list[[j]] <- daymet_data
+    attr_list[[1]] <- daymet_data
     
     
     #### STEP 2 ####
