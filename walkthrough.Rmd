@@ -1,0 +1,117 @@
+---
+title: "extract_huc_data() workflow"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### This Markdown walks through the how to:  
+1. run the `extract_huc_data` function  
+2. retrieve specific information from it's output
+  
+    
+
+
+##### Load required packages and source function from R script
+```{r, message = F, warning = F}
+library(tools)
+library(readr)
+library(stringr)
+library(fs)
+library(dplyr)
+source("extract_data_function_v2.R")
+```
+  
+  
+  
+#### The function requires three inputs  
+* basin directory (basin_dir)  
+  + This is the location of the `basin_data_public_v1p2` folder. From this directory you should be able to further navigate to desired daymet mean forcing data folders (labeled 01, 02, 03, etc) via : "~/home/basin_dataset_public_v1p2/basin_mean_forcing/daymet" , and the streamflow folders should be in: "~/home/basin_dataset_public_v1p2/usgs_streamflow" . This *exact* folder structure is required for the function to work properly  
+* attribute directory (attr_dir)  
+  + location of .txt files for data attributes (camels_clim.txt, camels_geol.txt, etc)  
+* huc ids (huc8_names)  
+  + a vector of 8 digit huc 8 ids to be queried  
+
+  
+## Running function  
+
+```{r}
+##~ directories
+basin_dir <- "~/CAMELS/basin_dataset_public_v1p2/"
+attr_dir <- "~/CAMELS/camels_attributes_v2.0"
+
+##~ list of hucs to query (provided as a vector)
+huc8_names <- c("01013500", "08269000", "10259200")
+
+### run function
+##~ this returns a named list object with 9 items
+data <- extract_huc_data(basin_dir = basin_dir, 
+                         attr_dir = attr_dir, 
+                         huc8_names = huc8_names)
+```
+ 
+\newpage
+
+## Access output   
+  
+#### view names of each list item
+```{r}
+names(data)
+```
+    
+### access each item
+```{r}
+
+mean_forcing <- data$mean_forcing_daymet
+
+### an alternative using [[]] syntax: 
+##~  mean_forcing <- data[["mean_forcing_daymet"]]
+## OR, because this is the first item in the list:
+##~  mean_forcing <- data[[1]]
+
+##this returns a tibble/data frame containing the mean forcing data
+str(mean_forcing) 
+
+
+```
+  
+  
+```{r}
+## furthermore, we can see that each of the hucs we entered are present
+unique(mean_forcing$ID)
+```
+
+\newpage
+
+## visualize
+```{r, message=F}
+library(ggplot2)
+library(lubridate) # for dates
+library(janitor) # clean column names
+
+# clean column names
+cleaned_names <- clean_names(mean_forcing)
+
+### turn year, month, day columns into single "date" column
+mean_forcing_date <- cleaned_names %>%
+  ## join columns, forcing into year, month, day format
+  mutate(date = ymd(paste(year, mnth, day, sep = "-")))
+
+ggplot(mean_forcing_date, aes(date, prcp_mm_day)) +
+  geom_line() +
+  facet_wrap(~id)
+
+```
+
+
+
+
+
+
+
+
+
