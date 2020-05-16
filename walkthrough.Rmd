@@ -93,8 +93,15 @@ library(ggplot2)
 library(lubridate) # for dates
 library(janitor) # clean column names
 
+## first, rename huc ID's with location from camels_name
+locs <- data[["camels_name"]]
+names(locs)
+
 # clean column names
-cleaned_names <- clean_names(mean_forcing)
+cleaned_forcing <- clean_names(mean_forcing)
+
+## join data based on ID to bring in gauge names
+cleaned_names <- left_join(cleaned_forcing, locs, by = c("id" = "gauge_id"))
 
 ### turn year, month, day columns into single "date" column
 mean_forcing_date <- cleaned_names %>%
@@ -103,7 +110,7 @@ mean_forcing_date <- cleaned_names %>%
 
 ggplot(mean_forcing_date, aes(date, prcp_mm_day)) +
   geom_line() +
-  facet_wrap(~id)
+  facet_wrap(~gauge_name)
 
 ```
 
