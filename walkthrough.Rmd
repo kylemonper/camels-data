@@ -93,14 +93,14 @@ library(ggplot2)
 library(lubridate) # for dates
 library(janitor) # clean column names
 
-## first, rename huc ID's with location from camels_name
+## first, rename huc ID's with location from camels_name, this isn't necessary, but makes for more informative labels
 locs <- data[["camels_name"]]
 names(locs)
 
 # clean column names
 cleaned_forcing <- clean_names(mean_forcing)
 
-## join data based on ID to bring in gauge names
+## join data (by ID) to bring in gauge names
 cleaned_names <- left_join(cleaned_forcing, locs, by = c("id" = "gauge_id"))
 
 ### turn year, month, day columns into single "date" column
@@ -114,7 +114,34 @@ ggplot(mean_forcing_date, aes(date, prcp_mm_day)) +
 
 ```
 
+\newpage  
+  
+## matching data from `dataRetrieval` package
+```{r}
+library(dataRetrieval)
 
+
+## finding NWIS sites in Maine (to match one of the selected sites above)
+sitesME <- whatWQPsites(statecode="US:23")
+
+### get the location name of the Maine site from the `Camel_name` data
+maine_camels <- locs %>% 
+  filter(str_detect(gauge_name, "Maine"))
+
+### join in NWIS data to get the USGS site code for this specific location
+location_info <- left_join(maine_camels, sitesME, by = c("gauge_name" = "MonitoringLocationName"))
+
+## retrieve USGS site ID
+USGS_sitecd <- location_info$MonitoringLocationIdentifier[1]
+
+### query NWIS for pH data at this site
+N_data <- readWQPdata(siteid = USGS_sitecd,
+                       characteristicName = "Nitrate")
+
+ggplot(N_data, aes(ActivityStartDate, ResultMeasureValue)) +
+  geom_point()
+
+```
 
 
 
