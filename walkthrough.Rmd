@@ -149,9 +149,18 @@ ggplot(N_data, aes(ActivityStartDate, ResultMeasureValue)) +
 
 param_codes <- read_csv("https://raw.githubusercontent.com/brunj7/camels-data/master/USGS_parameter_codes.csv")
 
-site_names <- c("USEPA-440432070255401", "test", "USGS-01011100", "USGS-010158001")
+site_names <- c("USEPA-440432070255401","USGS-010158001", "USGS-01011100")
 
 
+sites <- list() 
+for (i in 1:length(site_names)) {
+  print(i)
+sites[[i]] <- whatWQPsamples(siteid=site_names[i])
+}
+
+sites_data <- bind_rows(sites)
+
+sites <- whatWQPsamples(siteid="USGS-01594440")
 
  #test <- readWQPdata(siteid = site_names) %>% 
   # filter(USGSPCode %in% param_codes$`5_digit_code`)
@@ -169,10 +178,10 @@ for (i in 1:length(site_names)) {
 
  if (inherits(data, "error")) {
    sites[[i]] <- NULL
-     sprintf("site '%s' not found", site_names[i])
+     message(sprintf("site '%s' not found", site_names[i]))
      next
  } else if(is.null(data)) {
-     sprintf("no data found for site %s", site_names[i])
+     message(sprintf("no data found for site %s", site_names[i]))
      next
    } else {
    sites[[i]] <- data %>% 
@@ -185,6 +194,67 @@ for (i in 1:length(site_names)) {
 test <- bind_rows(sites)
 
 ```
+
+
+
+```{r}
+
+site_names <- c("USEPA-440432070255401","test2", "USGS-010158001", "USGS-01011100", "test")
+
+get_sample_data <- function(site_names) {
+  
+  
+err <- logical(length(site_names))
+no_data <- logical(length(site_names))
+working <- logical(length(site_names))
+for (i in 1:length(site_names)) {
+  
+ data <- tryCatch(
+    whatWQPsamples(siteid = site_names[i]),
+    error=function(e) e
+  )
+ 
+ if (inherits(data, "error")) {
+   err[i] <- TRUE
+     next
+ } else if (length(data) == 1) {
+   no_data[i] <- TRUE
+   next
+ }
+ 
+ working[i] <- TRUE
+ 
+}
+
+if(any(err)) cat("following sites not found please check that these station codes are correct: \n", sprintf("%s \n", site_names[err]))
+if(any(no_data)) cat("no sample data found for sites: \n", sprintf(" %s \n", site_names[no_data]))
+
+present <- working[!is.na(working)]
+
+wq_data <- readWQPdata(siteid = site_names[working]) %>% 
+  filter(USGSPCode %in% param_codes$`5_digit_code`)
+
+return(wq_data)
+  
+}
+
+test <- get_sample_data(site_names)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
