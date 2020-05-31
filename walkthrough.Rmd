@@ -145,6 +145,46 @@ ggplot(N_data, aes(ActivityStartDate, ResultMeasureValue)) +
 
 
 
+```{r}
+
+param_codes <- read_csv("https://raw.githubusercontent.com/brunj7/camels-data/master/USGS_parameter_codes.csv")
+
+site_names <- c("USEPA-440432070255401", "test", "USGS-01011100", "USGS-010158001")
+
+
+
+ #test <- readWQPdata(siteid = site_names) %>% 
+  # filter(USGSPCode %in% param_codes$`5_digit_code`)
+
+
+
+
+sites <- list()
+for (i in 1:length(site_names)) {
+
+ data <- tryCatch(
+    readWQPdata(siteid = site_names[i]),
+    error=function(e) e
+  )
+
+ if (inherits(data, "error")) {
+   sites[[i]] <- NULL
+     sprintf("site '%s' not found", site_names[i])
+     next
+ } else if(is.null(data)) {
+     sprintf("no data found for site %s", site_names[i])
+     next
+   } else {
+   sites[[i]] <- data %>% 
+    filter(USGSPCode %in% param_codes$`5_digit_code`)
+ } 
+  
+  
+}
+
+test <- bind_rows(sites)
+
+```
 
 
 
